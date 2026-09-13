@@ -1,0 +1,12 @@
+{
+    "label2id": {
+        "Compliant": 0,
+        "Needs Review": 1,
+        "Non-Compliant": 2
+    },
+    "id2label": {
+        "0": "Compliant",
+        "1": "Needs Review",
+        "2": "Non-Compliant"
+    }
+}

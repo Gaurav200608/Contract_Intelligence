@@ -1,0 +1,12 @@
+{
+    "label2id": {
+        "High": 0,
+        "Low": 1,
+        "Medium": 2
+    },
+    "id2label": {
+        "0": "High",
+        "1": "Low",
+        "2": "Medium"
+    }
+}
