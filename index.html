@@ -1,155 +1,246 @@
+@'
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contract Intelligence — Explainable Compliance & Negotiation Review</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Contract Intelligence</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <span class="brand-mark" aria-hidden="true">§</span>
-    <div class="brand-text">
-      <h1>Contract Intelligence</h1>
-      <p>Explainable compliance &amp; negotiation review</p>
+<header>
+    <div>
+        <h1>Contract Intelligence</h1>
+        <p>Explainable Compliance & Negotiation Intelligence</p>
     </div>
-  </div>
-  <div class="topbar-actions">
-    <span id="mode-flag" class="mode-flag">Demo data</span>
-    <button id="btn-settings" class="btn btn-ghost" type="button">API settings</button>
-    <button id="btn-new-upload" class="btn btn-primary" type="button">Upload contract</button>
-  </div>
+
+    <div class="backend-status">
+        <span id="statusDot"></span>
+        <span id="statusText">Checking backend...</span>
+    </div>
 </header>
 
-<!-- INTAKE / EMPTY STATE -->
-<main id="intake" class="intake">
-  <div class="intake-inner">
-    <div class="intake-copy">
-      <p class="intake-eyebrow">Contract review, automated</p>
-      <h2>Drop in a contract. Get a clause‑by‑clause verdict.</h2>
-      <p class="intake-lede">
-        Contract Intelligence reads a PDF or Word agreement, tags every clause,
-        checks it against your required‑terms checklist, scores overall risk,
-        and drafts negotiation language for anything missing or weak — with a
-        stated reason behind every call.
-      </p>
+<main>
 
-      <ol class="pipeline">
-        <li><span class="pipeline-index">1</span><div><strong>Parse</strong><span>Extract text from the PDF or DOCX file</span></div></li>
-        <li><span class="pipeline-index">2</span><div><strong>Classify</strong><span>Split into clauses and tag each by type</span></div></li>
-        <li><span class="pipeline-index">3</span><div><strong>Check</strong><span>Compare against required contract terms</span></div></li>
-        <li><span class="pipeline-index">4</span><div><strong>Score</strong><span>Weigh findings into an overall risk level</span></div></li>
-        <li><span class="pipeline-index">5</span><div><strong>Suggest</strong><span>Draft negotiation wording for weak spots</span></div></li>
-      </ol>
+<section id="uploadPage">
+
+    <div class="hero">
+        <div>
+            <span class="eyebrow">AI CONTRACT REVIEW</span>
+
+            <h2>
+                Analyze your contract.
+                <span>Understand every clause.</span>
+            </h2>
+
+            <p>
+                Upload a PDF or DOCX contract to receive clause analysis,
+                compliance checking, risk scoring, explanations and
+                negotiation recommendations.
+            </p>
+
+            <div class="pipeline">
+                <div><b>01</b><span>Parse</span></div>
+                <div><b>02</b><span>Classify</span></div>
+                <div><b>03</b><span>Compliance</span></div>
+                <div><b>04</b><span>Risk</span></div>
+                <div><b>05</b><span>Negotiate</span></div>
+            </div>
+        </div>
+
+        <div class="upload-card">
+
+            <div id="dropZone">
+
+                <div class="upload-icon">↑</div>
+
+                <h3>Drop your contract here</h3>
+
+                <p>or click to select a file</p>
+
+                <small>PDF or DOCX</small>
+
+                <button id="chooseBtn">
+                    Choose Contract
+                </button>
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept=".pdf,.docx"
+                    hidden
+                >
+
+            </div>
+
+            <div id="loading" class="loading" hidden>
+                <div class="spinner"></div>
+                <div>
+                    <b>Analyzing contract...</b>
+                    <p>Running document parser, ML models and analysis engines.</p>
+                </div>
+            </div>
+
+            <div id="error" class="error" hidden></div>
+
+        </div>
     </div>
 
-    <div class="intake-panel">
-      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload a contract file">
-        <svg class="dropzone-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-          <path d="M24 6v24M24 6l-8 8M24 6l8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 32v6a2 2 0 0 0 2 2h28a2 2 0 0 0 2-2v-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <p class="dropzone-title">Drag a contract here</p>
-        <p class="dropzone-sub">or click to browse — PDF or DOCX, up to 100&nbsp;MB</p>
-      </div>
-      <button id="btn-try-demo" class="btn btn-text" type="button">No file handy? Load a sample analysis →</button>
-      <p id="intake-error" class="intake-error" hidden></p>
+</section>
+
+
+<section id="resultsPage" hidden>
+
+    <div class="results-header">
+
+        <div>
+            <span class="eyebrow">ANALYSIS COMPLETE</span>
+            <h2 id="fileName">Contract Analysis</h2>
+            <p id="fileInfo"></p>
+        </div>
+
+        <button id="newContract" class="secondary">
+            Analyze Another
+        </button>
+
     </div>
-  </div>
-</main>
 
-<!-- WORKBENCH -->
-<main id="workbench" class="workbench" hidden>
 
-  <div class="workbench-header">
-    <div>
-      <p class="workbench-filename" id="wb-filename">sample_contract.pdf</p>
-      <p class="workbench-meta" id="wb-meta">12 clauses detected · 8 required terms checked</p>
+    <div class="summary">
+
+        <div class="summary-card">
+            <label>Overall Risk</label>
+            <strong id="overallRisk">—</strong>
+            <small id="riskModel">—</small>
+        </div>
+
+        <div class="summary-card">
+            <label>Risk Score</label>
+            <strong id="riskScore">—</strong>
+            <small>Weighted risk findings</small>
+        </div>
+
+        <div class="summary-card">
+            <label>Compliance</label>
+            <strong id="compliance">—</strong>
+            <small id="complianceModel">—</small>
+        </div>
+
+        <div class="summary-card">
+            <label>Clauses Detected</label>
+            <strong id="clauseCount">—</strong>
+            <small id="textLength">—</small>
+        </div>
+
     </div>
-    <button id="btn-reanalyze" class="btn btn-ghost btn-small" type="button">Analyze another file</button>
-  </div>
 
-  <div class="workbench-grid">
 
-    <!-- LEFT: clause index -->
-    <aside class="rail rail-index" aria-label="Clause index">
-      <h2 class="rail-title">Clause index</h2>
-      <ul id="clause-index" class="clause-index"></ul>
-    </aside>
+    <div class="tabs">
+        <a href="#complianceSection">Compliance</a>
+        <a href="#clauseSection">Clauses</a>
+        <a href="#explanationSection">Explainability</a>
+        <a href="#negotiationSection">Negotiation</a>
+        <a href="#rawSection">API Output</a>
+    </div>
 
-    <!-- CENTER: analysis feed -->
-    <section class="feed" aria-label="Compliance analysis">
-      <h2 class="rail-title">Analysis feed</h2>
-      <div id="feed-list" class="feed-list"></div>
+
+    <section id="complianceSection" class="panel">
+
+        <h3>01. Compliance Review</h3>
+        <p class="description">
+            Required contractual terms detected in the uploaded contract.
+        </p>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Clause</th>
+                        <th>Status</th>
+                        <th>Risk</th>
+                        <th>Requirement</th>
+                        <th>Contract Evidence</th>
+                    </tr>
+                </thead>
+
+                <tbody id="complianceTable"></tbody>
+
+            </table>
+
+        </div>
+
     </section>
 
-    <!-- RIGHT: risk + negotiation -->
-    <aside class="rail rail-summary" aria-label="Risk summary and negotiation priorities">
 
-      <div class="risk-card">
-        <h2 class="rail-title">Overall risk</h2>
-        <div class="risk-dial-wrap">
-          <svg id="risk-dial" viewBox="0 0 200 120" class="risk-dial" aria-hidden="true">
-            <path d="M20 110 A80 80 0 0 1 180 110" fill="none" stroke="#E4E0D3" stroke-width="14" stroke-linecap="round"/>
-            <path id="risk-dial-fill" d="M20 110 A80 80 0 0 1 180 110" fill="none" stroke="#96661A" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
-          </svg>
-          <div class="risk-dial-readout">
-            <span id="risk-score" class="risk-score">—</span>
-            <span id="risk-label" class="risk-label">—</span>
-          </div>
+    <section id="clauseSection" class="panel">
+
+        <h3>02. Clause Analysis</h3>
+        <p class="description">
+            TinyBERT clause classification and confidence.
+        </p>
+
+        <div id="clauses" class="cards"></div>
+
+    </section>
+
+
+    <section id="explanationSection" class="panel">
+
+        <h3>03. Explainability</h3>
+        <p class="description">
+            Explanation behind each compliance and risk finding.
+        </p>
+
+        <div id="explanations" class="cards"></div>
+
+    </section>
+
+
+    <section id="negotiationSection" class="panel">
+
+        <h3>04. Negotiation Intelligence</h3>
+        <p class="description">
+            Recommended negotiation actions and suggested wording.
+        </p>
+
+        <div id="negotiations" class="cards"></div>
+
+    </section>
+
+
+    <section id="rawSection" class="panel">
+
+        <div class="raw-header">
+            <div>
+                <h3>05. Complete API Output</h3>
+                <p class="description">
+                    Full response received from POST /api/analyze.
+                </p>
+            </div>
+
+            <button id="copyBtn" class="secondary">
+                Copy JSON
+            </button>
         </div>
-        <p class="risk-note" id="risk-note">Score reflects weighted findings across all required terms.</p>
-      </div>
 
-      <div class="negotiation-card">
-        <h2 class="rail-title">Negotiation priorities</h2>
-        <ul id="negotiation-list" class="negotiation-list"></ul>
-      </div>
+        <pre id="rawOutput"></pre>
 
-    </aside>
+    </section>
 
-  </div>
+</section>
+
 </main>
 
-<!-- CLAUSE DETAIL DRAWER (mobile) -->
-<div id="drawer-overlay" class="drawer-overlay" hidden></div>
+<footer>
+Contract Intelligence · AI-assisted contract analysis
+</footer>
 
-<!-- SETTINGS PANEL -->
-<div id="settings-panel" class="settings-panel" hidden>
-  <div class="settings-inner">
-    <div class="settings-head">
-      <h2>API settings</h2>
-      <button id="btn-close-settings" class="btn-icon" type="button" aria-label="Close">✕</button>
-    </div>
-    <p class="settings-copy">
-      Point this frontend at your FastAPI backend once
-      <code>POST /api/analyze</code> is wired up. Until then, it runs on
-      bundled demo data so the interface can be reviewed end to end.
-    </p>
-    <label class="settings-label" for="api-base-input">Backend base URL</label>
-    <input id="api-base-input" class="settings-input" type="text" placeholder="https://localhost:8000" autocomplete="off">
-    <label class="settings-checkbox">
-      <input type="checkbox" id="demo-toggle">
-      <span>Use demo data instead of calling the backend</span>
-    </label>
-
-    <div class="settings-row">
-      <button id="btn-test-connection" class="btn btn-ghost btn-small" type="button">Test connection</button>
-      <span id="connection-status" class="connection-status" aria-live="polite"></span>
-    </div>
-
-    <button id="btn-save-settings" class="btn btn-primary" type="button">Save settings</button>
-  </div>
-</div>
-
-<input type="file" id="file-input" accept=".pdf,.docx" hidden>
-
-<script src="mock-data.js"></script>
 <script src="app.js"></script>
+
 </body>
 </html>
+'@ | Set-Content index.html -Encoding UTF8
