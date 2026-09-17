@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://127.0.0.1:8000";
 
 const fileInput = document.getElementById("fileInput");
 const chooseBtn = document.getElementById("chooseBtn");
@@ -96,7 +95,7 @@ function createBadge(value) {
         `badge ${riskClass(value)}`;
 
     span.textContent =
-        value || "â€”";
+        value || "Ã¢â‚¬â€";
 
     return span;
 
@@ -119,7 +118,7 @@ function renderCompliance(items) {
             document.createElement("td");
 
         clause.textContent =
-            item.clause || "â€”";
+            item.clause || "Ã¢â‚¬â€";
 
 
         const status =
@@ -142,7 +141,7 @@ function renderCompliance(items) {
             document.createElement("td");
 
         requirement.textContent =
-            item.requirement || "â€”";
+            item.requirement || "Ã¢â‚¬â€";
 
 
         const evidence =
@@ -229,23 +228,23 @@ function renderExplanations(items) {
             <div class="card-top">
                 <h4>${item.clause || "Finding"}</h4>
                 <span class="badge ${riskClass(item.risk)}">
-                    ${item.risk || "â€”"}
+                    ${item.risk || "Ã¢â‚¬â€"}
                 </span>
             </div>
 
             <div class="info-block">
                 <b>Why</b>
-                <p>${item.reason || "â€”"}</p>
+                <p>${item.reason || "Ã¢â‚¬â€"}</p>
             </div>
 
             <div class="info-block">
                 <b>Impact</b>
-                <p>${item.impact || "â€”"}</p>
+                <p>${item.impact || "Ã¢â‚¬â€"}</p>
             </div>
 
             <div class="info-block">
                 <b>Recommendation</b>
-                <p>${item.recommendation || "â€”"}</p>
+                <p>${item.recommendation || "Ã¢â‚¬â€"}</p>
             </div>
         `;
 
@@ -281,7 +280,7 @@ function renderNegotiations(items) {
 
             <div class="info-block">
                 <b>Recommended Action</b>
-                <p>${item.suggestion || "â€”"}</p>
+                <p>${item.suggestion || "Ã¢â‚¬â€"}</p>
             </div>
 
             <div class="wording">
@@ -308,18 +307,18 @@ function renderResults(data) {
 
 
     document.getElementById("overallRisk").textContent =
-        data.risk?.overall_risk || "â€”";
+        data.risk?.overall_risk || "Ã¢â‚¬â€";
 
     document.getElementById("overallRisk").className =
         `risk ${riskClass(data.risk?.overall_risk)}`;
 
 
     document.getElementById("riskScore").textContent =
-        data.risk?.risk_score ?? "â€”";
+        data.risk?.risk_score ?? "Ã¢â‚¬â€";
 
 
     document.getElementById("riskModel").textContent =
-        `Model: ${data.risk?.model_prediction || "â€”"} Â· ${data.risk?.confidence ?? "â€”"}%`;
+        `Model: ${data.risk?.model_prediction || "Ã¢â‚¬â€"} Ã‚Â· ${data.risk?.confidence ?? "Ã¢â‚¬â€"}%`;
 
 
     const compliance =
@@ -342,7 +341,7 @@ function renderResults(data) {
 
 
     document.getElementById("complianceModel").textContent =
-        `Model: ${data.compliance_prediction?.status || "â€”"} Â· ${data.compliance_prediction?.confidence ?? "â€”"}%`;
+        `Model: ${data.compliance_prediction?.status || "Ã¢â‚¬â€"} Ã‚Â· ${data.compliance_prediction?.confidence ?? "Ã¢â‚¬â€"}%`;
 
 
     const clauses =
@@ -617,7 +616,6 @@ setInterval(
     checkBackend,
     10000
 );
-=======
 (() => {
   "use strict";
 
@@ -625,7 +623,7 @@ setInterval(
      Config & persisted settings
   ------------------------------------------------------------------ */
 
-  const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB — server enforces this too
+  const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB â€” server enforces this too
   const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
   const DEFAULT_API_BASE = "http://localhost:8000";
   const STORAGE_KEY = "contract-intelligence-settings";
@@ -648,7 +646,7 @@ setInterval(
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch (_e) {
-      /* localStorage unavailable — settings just won't persist across reloads */
+      /* localStorage unavailable â€” settings just won't persist across reloads */
     }
   }
 
@@ -711,7 +709,7 @@ setInterval(
   }
 
   function applyModeFlag() {
-    el.modeFlag.textContent = settings.useDemo ? "Demo data" : `Live · ${settings.apiBase}`;
+    el.modeFlag.textContent = settings.useDemo ? "Demo data" : `Live Â· ${settings.apiBase}`;
   }
 
   el.btnSettings.addEventListener("click", openSettings);
@@ -731,7 +729,7 @@ setInterval(
   el.btnTestConnection.addEventListener("click", async () => {
     const apiBase = el.apiBaseInput.value.trim() || DEFAULT_API_BASE;
     el.connectionStatus.className = "connection-status pending";
-    el.connectionStatus.textContent = "Checking…";
+    el.connectionStatus.textContent = "Checkingâ€¦";
     try {
       const res = await fetch(`${apiBase.replace(/\/+$/, "")}/api/health`, {
         method: "GET"
@@ -745,7 +743,7 @@ setInterval(
       }
     } catch (_err) {
       el.connectionStatus.className = "connection-status fail";
-      el.connectionStatus.textContent = "Unreachable — check URL, CORS, or that the server is running";
+      el.connectionStatus.textContent = "Unreachable â€” check URL, CORS, or that the server is running";
     }
   });
 
@@ -871,12 +869,12 @@ setInterval(
 
   function setDropzoneBusy(isBusy) {
     if (isBusy) {
-      el.dropzone.querySelector(".dropzone-title").textContent = "Analyzing…";
+      el.dropzone.querySelector(".dropzone-title").textContent = "Analyzingâ€¦";
       el.dropzone.querySelector(".dropzone-sub").textContent = "Parsing, classifying, and scoring the contract";
       el.dropzone.setAttribute("aria-busy", "true");
     } else {
       el.dropzone.querySelector(".dropzone-title").textContent = "Drag a contract here";
-      el.dropzone.querySelector(".dropzone-sub").textContent = "or click to browse — PDF or DOCX, up to 100\u00a0MB";
+      el.dropzone.querySelector(".dropzone-sub").textContent = "or click to browse â€” PDF or DOCX, up to 100\u00a0MB";
       el.dropzone.removeAttribute("aria-busy");
     }
   }
@@ -907,7 +905,7 @@ setInterval(
 
     el.wbFilename.textContent = data.filename || "Untitled contract";
     el.wbMeta.textContent =
-      `${(data.clauses || []).length} clause${(data.clauses || []).length === 1 ? "" : "s"} detected · ` +
+      `${(data.clauses || []).length} clause${(data.clauses || []).length === 1 ? "" : "s"} detected Â· ` +
       `${compliantCount} of ${requiredCount} required terms present`;
 
     renderClauseIndex(data.compliance || []);
@@ -968,7 +966,7 @@ setInterval(
 
       const badge = document.createElement("span");
       badge.className = `status-badge ${riskClass(item.risk)}`;
-      badge.textContent = compl.status ? `${compl.status} · ${item.risk}` : item.risk;
+      badge.textContent = compl.status ? `${compl.status} Â· ${item.risk}` : item.risk;
 
       head.append(title, badge);
 
@@ -1031,7 +1029,7 @@ setInterval(
     if (!items.length) {
       const li = document.createElement("li");
       li.className = "negotiation-item";
-      li.textContent = "No negotiation points — nothing missing or flagged.";
+      li.textContent = "No negotiation points â€” nothing missing or flagged.";
       el.negotiationList.appendChild(li);
       return;
     }
@@ -1059,4 +1057,5 @@ setInterval(
     });
   }
 })();
->>>>>>> 15b92ba76e4f02c8cc8e9c68848ebd3d980e6056
+
+
