@@ -5,3 +5,10 @@ uploads/
 outputs/
 .env
 ml/models/**/checkpoint-*/
+
+all_python_code.txt
+all_frontend_code.txt
+*.bak
+installed_packages.txt
+project_tree.txt
+project_config.txt
