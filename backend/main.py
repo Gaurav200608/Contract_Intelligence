@@ -11,6 +11,7 @@ from backend.services.clause_extractor import extract_clauses
 from backend.services.compliance_engine import analyze_compliance
 from backend.services.risk_engine import calculate_risk, generate_explanations
 from backend.services.negotiation_engine import generate_negotiation_suggestions
+from backend.services.financial_impact_engine import analyze_financial_impact
 
 
 app = FastAPI(title="Contract Intelligence API")
@@ -210,6 +211,8 @@ async def analyze_contract(
             compliance
         )
 
+        financial_impact = analyze_financial_impact(text)
+
         risk_label, risk_confidence = predict(
             "risk",
             text
@@ -242,7 +245,8 @@ async def analyze_contract(
                 )
             },
             "explanations": explanations,
-            "negotiation": negotiation
+            "negotiation": negotiation,
+            "financial_impact": financial_impact
         }
 
     finally:
