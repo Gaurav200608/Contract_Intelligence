@@ -165,7 +165,7 @@ def _amounts(sentence: str) -> list[dict[str, Any]]:
         tail = sentence[match.end():match.end() + 12].lower()
 
         if re.match(
-            r'\s*(?:%|percent|days?|weeks?|months?|years?)\b',
+            r'\s*(?:%|percent\b|days?\b|weeks?\b|months?\b|years?\b)',
             tail
         ):
             continue
@@ -186,11 +186,32 @@ def _amounts(sentence: str) -> list[dict[str, Any]]:
 
 
 def _sentences(text: str) -> list[tuple[int, int, str]]:
-    return [
-        (match.start(), match.end(), match.group().strip())
-        for match in re.finditer(r'[^.!?;\n]+(?:[.!?;]+|$)', text)
-        if match.group().strip()
-    ]
+    sentences = []
+    start = 0
+    separators = re.compile(
+        r'(?<!\d)\.(?!\d)|(?<=\d)\.(?=\s|$)|[!?;]|\n+'
+    )
+    for match in separators.finditer(text):
+        raw = text[start:match.start()]
+        leading = len(raw) - len(raw.lstrip())
+        separator = match.group()
+        sentence = raw + (
+            separator if separator and separator[0] in ".!?;" else ""
+        )
+        sentence = sentence.strip()
+        if sentence:
+            sentence_start = start + leading
+            sentences.append((sentence_start, sentence_start + len(sentence), sentence))
+        start = match.end()
+
+    raw = text[start:]
+    leading = len(raw) - len(raw.lstrip())
+    sentence = raw.strip()
+    if sentence:
+        sentence_start = start + leading
+        sentences.append((sentence_start, sentence_start + len(sentence), sentence))
+
+    return sentences
 
 
 def _durations(sentence: str) -> list[dict[str, Any]]:
@@ -580,11 +601,17 @@ def analyze_financial_impact(text: str) -> dict[str, Any]:
             "is unavailable."
         )
 
+    scored_factors = {}
     for factor in factors:
-        score += 3 if factor["severity"] == "High" else 2
+        points = 7 if factor["severity"] == "High" else 3
+        current = scored_factors.get(factor["factor"])
+        if current is None or points > current[0]:
+            scored_factors[factor["factor"]] = (points, factor["severity"])
+
+    for label, (points, severity) in scored_factors.items():
+        score += points
         reasons.append(
-            f"{factor['severity']} contextual factor: "
-            f"{factor['factor']}."
+            f"{severity} contextual factor: {label}."
         )
 
     if len(uncertainties) >= 3:

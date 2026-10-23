@@ -4,6 +4,7 @@ __pycache__/
 uploads/
 outputs/
 .env
+backend/auth_data/
 ml/models/**/checkpoint-*/
 
 all_python_code.txt

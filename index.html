@@ -1,245 +1,357 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contract Intelligence</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101c2c">
+    <meta name="description" content="Evidence-led contract intelligence for confident business decisions.">
+    <title>Contract Intelligence</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+<body class="dashboard-body">
+    <div class="app-shell">
+        <aside id="sidebar" class="sidebar" aria-label="Main navigation">
+            <a class="sidebar-brand" href="#overview" aria-label="Contract Intelligence overview">
+                <span class="sidebar-mark" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" focusable="false"><path d="M8 23h16M10 19l8-8m-5-3 7 7m-10-4 3-3 7 7-3 3zM17 21l5-5" /></svg>
+                </span>
+                <span class="sidebar-brand-text">Contract <b>Intelligence</b></span>
+            </a>
 
-<body>
+            <div class="sidebar-label">WORKSPACE</div>
+            <nav id="primaryNavigation" class="sidebar-nav">
+                <a class="nav-link" href="#overview" data-page="overview">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="8" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="15" width="7" height="6" rx="1"/></svg></span><span>Overview</span>
+                </a>
+                <a class="nav-link" href="#contract-analysis" data-page="contract-analysis">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg></span><span>Contract Analysis</span>
+                </a>
+                <a class="nav-link" href="#clause-analysis" data-page="clause-analysis">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span><span>Clause Analysis</span>
+                </a>
+                <a class="nav-link" href="#risk-analysis" data-page="risk-analysis">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3.5 7v5c0 5 3.6 8 8.5 9 4.9-1 8.5-4 8.5-9V7z"/><path d="M12 8v5m0 3h.01"/></svg></span><span>Risk Analysis</span>
+                </a>
+                <a class="nav-link" href="#compliance-analysis" data-page="compliance-analysis">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 12.5 11 15l5-6M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></svg></span><span>Compliance Analysis</span>
+                </a>
+                <a class="nav-link" href="#financial-impact" data-page="financial-impact">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 3 6-7M16 6h5v5"/></svg></span><span>Financial Impact</span>
+                </a>
+                <a class="nav-link" href="#negotiation-support" data-page="negotiation-support">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 7h14m0 0-4-4m4 4-4 4M17 17H3m0 0 4 4m-4-4 4-4"/></svg></span><span>Negotiation Support</span>
+                </a>
+                <a class="nav-link" href="#law-analysis" data-page="law-analysis">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 6h14M7 6l-4 8h8L7 6zm10 0-4 8h8l-4-8zM7 18h10"/></svg></span><span>Law Analysis</span>
+                </a>
+            </nav>
 
-<header>
-    <div>
-        <h1>Contract Intelligence</h1>
-        <p>Explainable Compliance & Negotiation Intelligence</p>
-    </div>
-
-    <div class="backend-status">
-        <span id="statusDot"></span>
-        <span id="statusText">Checking backend...</span>
-    </div>
-</header>
-
-<main>
-
-<section id="uploadPage">
-
-    <div class="hero">
-        <div>
-            <span class="eyebrow">AI CONTRACT REVIEW</span>
-
-            <h2>
-                Analyze your contract.
-                <span>Understand every clause.</span>
-            </h2>
-
-            <p>
-                Upload a PDF or DOCX contract to receive clause analysis,
-                compliance checking, risk scoring, explanations and
-                negotiation recommendations.
-            </p>
-
-            <div class="pipeline">
-                <div><b>01</b><span>Parse</span></div>
-                <div><b>02</b><span>Classify</span></div>
-                <div><b>03</b><span>Compliance</span></div>
-                <div><b>04</b><span>Risk</span></div>
-                <div><b>05</b><span>Negotiate</span></div>
-            </div>
-        </div>
-
-        <div class="upload-card">
-
-            <div id="dropZone">
-
-                <div class="upload-icon">â†‘</div>
-
-                <h3>Drop your contract here</h3>
-
-                <p>or click to select a file</p>
-
-                <small>PDF or DOCX</small>
-
-                <button id="chooseBtn">
-                    Choose Contract
+            <div class="sidebar-bottom">
+                <button id="sidebarCollapse" class="sidebar-collapse" type="button" aria-label="Collapse navigation" title="Collapse navigation">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span>Collapse sidebar</span>
                 </button>
-
-                <input
-                    type="file"
-                    id="fileInput"
-                    accept=".pdf,.docx"
-                    hidden
-                >
-
-            </div>
-
-            <div id="loading" class="loading" hidden>
-                <div class="spinner"></div>
-                <div>
-                    <b>Analyzing contract...</b>
-                    <p>Running document parser, ML models and analysis engines.</p>
+                <div class="sidebar-status">
+                    <span id="statusDot" class="status-dot"></span>
+                    <span id="statusText">Checking backend...</span>
+                </div>
+                <div class="sidebar-user">
+                    <span class="user-avatar" aria-hidden="true">CI</span>
+                    <span class="sidebar-user-copy"><b id="profileName">Signed in</b><small>Secure workspace</small></span>
+                    <button id="logoutBtn" class="icon-button logout-button" type="button" aria-label="Sign out" title="Sign out">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3"/><path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6"/></svg>
+                    </button>
                 </div>
             </div>
+        </aside>
 
-            <div id="error" class="error" hidden></div>
+        <div id="sidebarBackdrop" class="sidebar-backdrop" hidden></div>
 
+        <div class="workspace">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="sidebarToggle" class="icon-button sidebar-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <div>
+                        <div class="breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><b id="pageBreadcrumb">Overview</b></div>
+                        <h1 id="pageTitle">Overview</h1>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <span id="topbarContractName" class="topbar-contract">No contract analyzed</span>
+                    <button id="topbarUpload" class="primary-button topbar-action-button" type="button">
+                        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+                        <span>New analysis</span>
+                    </button>
+                </div>
+            </header>
+
+            <main id="mainContent" class="main-content">
+                <section id="overviewPage" class="app-page" data-page-container="overview" aria-labelledby="overviewHeading">
+                    <section class="overview-hero" aria-labelledby="overviewHeading">
+                        <div class="overview-hero-shade"></div>
+                        <div class="overview-hero-copy">
+                            <p class="eyebrow">CONTRACT INTELLIGENCE · PRIVATE WORKSPACE</p>
+                            <h2 id="overviewHeading">Clarity Before<br><em>You Commit.</em></h2>
+                            <p>See the obligations, exposure and jurisdictional context inside every agreement—before a signature makes it real.</p>
+                            <div class="hero-actions">
+                                <button class="primary-button hero-primary" type="button" data-navigate="contract-analysis">
+                                    Analyze a contract <span aria-hidden="true">↗</span>
+                                </button>
+                                <button class="hero-secondary" type="button" data-navigate="law-analysis">
+                                    Explore legal intelligence <span aria-hidden="true">→</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hero-annotation"><span></span> Evidence-led review, grounded in your document</div>
+                        <a class="image-credit" href="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&amp;fit=crop&amp;w=2200&amp;q=85" target="_blank" rel="noopener noreferrer">Photography via Unsplash</a>
+                    </section>
+
+                    <section class="overview-section" aria-labelledby="overviewSnapshotHeading">
+                        <div class="overview-section-heading">
+                            <div><p class="eyebrow">YOUR WORKSPACE</p><h3 id="overviewSnapshotHeading">The agreement in focus</h3></div>
+                            <span id="overviewDocumentStatus" class="status-pill status-muted">No analysis yet</span>
+                        </div>
+                        <div class="overview-snapshot">
+                            <article class="snapshot-document">
+                                <div class="snapshot-kicker"><span class="document-glyph" aria-hidden="true">DOC</span><span id="overviewContractType">No document</span></div>
+                                <h4 id="fileName">No contract analyzed</h4>
+                                <p id="fileInfo">Your latest analysis will appear here. Previous documents are not stored by this workspace.</p>
+                                <div class="snapshot-details">
+                                    <div><span>Extraction</span><b id="overviewExtraction">—</b></div>
+                                    <div><span>Text analyzed</span><b id="textLength">—</b></div>
+                                    <div><span>Clauses found</span><b id="clauseCount">—</b></div>
+                                </div>
+                                <div id="analysisWarnings" class="analysis-warnings" hidden></div>
+                                <button class="text-button" type="button" data-navigate="contract-analysis">Open document details <span aria-hidden="true">→</span></button>
+                            </article>
+                            <article class="snapshot-intelligence">
+                                <p class="eyebrow">REVIEW SNAPSHOT</p>
+                                <div class="snapshot-risk">
+                                    <span class="snapshot-risk-label">Contract risk</span>
+                                    <strong id="overallRisk" class="metric-value">—</strong>
+                                    <small id="riskModel">No analysis available</small>
+                                </div>
+                                <div class="snapshot-rule"></div>
+                                <div class="snapshot-detail-row"><span>Risk score</span><b id="riskScore">—</b></div>
+                                <div class="snapshot-detail-row"><span>Contract-term checks</span><b id="compliance">—</b></div>
+                                <div class="snapshot-detail-row"><span>Legal findings</span><b id="overviewLegalCount">—</b></div>
+                                <p id="complianceModel" class="snapshot-footnote">Only current-document results are shown.</p>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="overview-section recent-section" aria-labelledby="recentHeading">
+                        <div class="overview-section-heading">
+                            <div><p class="eyebrow">DOCUMENTS</p><h3 id="recentHeading">Recent contracts</h3></div>
+                            <span class="not-stored-label">Session only</span>
+                        </div>
+                        <div id="recentContracts" class="recent-contracts">
+                            <div id="recentEmpty" class="recent-empty">
+                                <span class="recent-empty-mark" aria-hidden="true">—</span>
+                                <div><b>No saved contract history</b><p>For privacy, analyses are not retained as a document library. Your current result remains available while this page is open.</p></div>
+                                <button class="text-button" type="button" data-navigate="contract-analysis">Start an analysis <span aria-hidden="true">→</span></button>
+                            </div>
+                            <button id="recentCurrent" class="recent-current" type="button" data-navigate="contract-analysis" hidden>
+                                <span class="document-glyph" aria-hidden="true">DOC</span>
+                                <span><b id="recentContractName">Current contract</b><small id="recentContractMeta">Latest analysis in this session</small></span>
+                                <span class="recent-open">View <span aria-hidden="true">→</span></span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="overview-section intelligence-section" aria-labelledby="modulesHeading">
+                        <div class="overview-section-heading">
+                            <div><p class="eyebrow">A MORE INFORMED REVIEW</p><h3 id="modulesHeading">One agreement. Multiple perspectives.</h3></div>
+                        </div>
+                        <div class="feature-grid">
+                            <button class="feature-card" type="button" data-navigate="contract-analysis"><span class="feature-index">01</span><span class="feature-title">Contract analysis</span><span class="feature-copy">Extract the structure and essential terms from your document.</span><span class="feature-arrow">↗</span></button>
+                            <button class="feature-card" type="button" data-navigate="risk-analysis"><span class="feature-index">02</span><span class="feature-title">Risk intelligence</span><span class="feature-copy">Surface material risks with their contractual evidence.</span><span class="feature-arrow">↗</span></button>
+                            <button class="feature-card" type="button" data-navigate="financial-impact"><span class="feature-index">03</span><span class="feature-title">Financial impact</span><span class="feature-copy">Understand extracted amounts, calculations and uncertainties.</span><span class="feature-arrow">↗</span></button>
+                            <button class="feature-card" type="button" data-navigate="negotiation-support"><span class="feature-index">04</span><span class="feature-title">Negotiation support</span><span class="feature-copy">Prepare for discussion with suggested changes and rationale.</span><span class="feature-arrow">↗</span></button>
+                            <button class="feature-card feature-card-law" type="button" data-navigate="law-analysis"><span class="feature-index">05</span><span class="feature-title">Law analysis</span><span class="feature-copy">Review jurisdiction signals and contract-specific legal context.</span><span class="feature-arrow">↗</span></button>
+                        </div>
+                    </section>
+                </section>
+
+                <section id="contractAnalysisPage" class="app-page" data-page-container="contract-analysis" aria-labelledby="contractAnalysisHeading" hidden>
+                    <div class="page-heading">
+                        <p class="eyebrow">DOCUMENT INGESTION</p>
+                        <h2 id="contractAnalysisHeading">Contract Analysis</h2>
+                        <p class="page-lede">Upload the original PDF or DOCX. Extraction, clause discovery, and all analysis modules run together.</p>
+                    </div>
+
+                    <section id="uploadPage" class="surface-card upload-workspace">
+                        <div class="upload-copy">
+                            <span class="upload-icon" aria-hidden="true">↑</span>
+                            <h3>Start with a contract</h3>
+                            <p>Text PDFs and DOCX files are supported. Scanned PDFs use OCR when the required system tools are configured.</p>
+                            <div class="upload-file-types"><span>PDF</span><span>DOCX</span><span>Up to 100 MB</span></div>
+                        </div>
+                        <div class="upload-card">
+                            <div id="dropZone" tabindex="0" role="button" aria-label="Choose or drop a PDF or DOCX contract">
+                                <div class="upload-icon-small" aria-hidden="true">↑</div>
+                                <h3>Drop your contract here</h3>
+                                <p>or choose a file from your device</p>
+                            </div>
+                            <button id="chooseBtn" class="primary-button choose-contract-button" type="button">Choose contract</button>
+                            <input type="file" id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+                            <div id="selectedFile" class="selected-file" hidden>
+                                <span class="document-glyph" aria-hidden="true">DOC</span>
+                                <span><b id="selectedFileName">Selected contract</b><small id="selectedFileMeta">Ready to analyze</small></span>
+                                <button id="clearSelectedFile" class="clear-file" type="button" aria-label="Remove selected contract">Remove</button>
+                            </div>
+                            <button id="analyzeBtn" class="primary-button analyze-button" type="button" disabled>
+                                Analyze selected contract <span aria-hidden="true">↗</span>
+                            </button>
+                            <div id="loading" class="loading" hidden aria-live="polite">
+                                <div class="spinner" aria-hidden="true"></div>
+                                <div class="loading-copy"><b>Analyzing your contract</b><p>Extracting text and running the configured analysis modules.</p>
+                                    <div class="analysis-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+                                </div>
+                            </div>
+                            <div id="error" class="error" role="alert" hidden></div>
+                        </div>
+                    </section>
+
+                    <section id="resultsPage" class="surface-card extraction-summary" hidden>
+                        <div class="section-heading">
+                            <div><p class="eyebrow">LATEST EXTRACTION</p><h3 id="extractionTitle">Document details</h3></div>
+                            <span id="extractionStatus" class="status-pill status-success">Analysis complete</span>
+                        </div>
+                        <div class="document-facts">
+                            <div><span>Contract type</span><b id="extractionContractType">—</b></div>
+                            <div><span>Text extracted</span><b id="extractionCharacters">—</b></div>
+                            <div><span>Extraction method</span><b id="extractionMethod">—</b></div>
+                        </div>
+                        <p id="extractionWarnings" class="muted-copy"></p>
+                        <button id="newContract" class="secondary-button" type="button">Analyze another contract</button>
+                        <details class="raw-details">
+                            <summary>View complete API response</summary>
+                            <div class="raw-header"><p class="muted-copy">POST /api/analyze</p><button id="copyBtn" class="secondary-button" type="button">Copy JSON</button></div>
+                            <pre id="rawOutput"></pre>
+                        </details>
+                    </section>
+                </section>
+
+                <section id="clausesPage" class="app-page" data-page-container="clause-analysis" aria-labelledby="clausesHeading" hidden>
+                    <div class="page-heading"><p class="eyebrow">DOCUMENT STRUCTURE</p><h2 id="clausesHeading">Clause Analysis</h2><p class="page-lede">Extracted contract passages and the classifier output returned for this document.</p></div>
+                    <section class="surface-card">
+                        <div class="filter-row">
+                            <label>Search clauses<input id="clauseSearch" type="search" placeholder="Search text or heading"></label>
+                            <label>Category<select id="clauseCategoryFilter"><option value="">All categories</option></select></label>
+                        </div>
+                        <p id="clausesEmpty" class="empty-state">Analyze a contract to see extracted clauses here.</p>
+                        <div id="clauses" class="cards"></div>
+                    </section>
+                </section>
+
+                <section id="riskPage" class="app-page" data-page-container="risk-analysis" aria-labelledby="riskHeading" hidden>
+                    <div class="page-heading"><p class="eyebrow">CONTRACT EXPOSURE</p><h2 id="riskHeading">Risk Analysis</h2><p class="page-lede">Risk scores and explanations from the existing contract risk engine. This is separate from legal analysis.</p></div>
+                    <div class="risk-summary-row">
+                        <article class="surface-card risk-summary-card"><span class="metric-label">Overall risk</span><strong id="riskPageLevel">—</strong><small id="riskPageScore">No analysis available</small></article>
+                        <article class="surface-card risk-summary-card"><span id="riskPageModelLabel" class="metric-label">Assessment basis</span><strong id="riskPageModel">—</strong><small id="riskPageConfidence">Not available</small></article>
+                    </div>
+                    <section class="surface-card">
+                        <div class="section-heading"><div><h3>Risk findings and explanations</h3><p class="muted-copy">Recommendations are the existing rule-based explanations, not legal conclusions.</p></div>
+                            <div class="filter-row risk-filters">
+                                <label>Category<select id="riskCategoryFilter"><option value="">All categories</option></select></label>
+                                <label>Severity<select id="riskSeverityFilter"><option value="">All severities</option></select></label>
+                            </div>
+                        </div>
+                        <p id="riskEmpty" class="empty-state">Analyze a contract to see risk findings here.</p>
+                        <div id="explanations" class="cards"></div>
+                    </section>
+                </section>
+
+                <section id="compliancePage" class="app-page" data-page-container="compliance-analysis" aria-labelledby="complianceHeading" hidden>
+                    <div class="page-heading"><p class="eyebrow">CONTRACT TERMS CHECK</p><h2 id="complianceHeading">Compliance Analysis</h2><p class="page-lede">Presence checks for the contractual terms configured in the existing engine. “Present” is not confirmation of legal or regulatory compliance.</p></div>
+                    <section class="surface-card">
+                        <div class="filter-row">
+                            <label>Search findings<input id="complianceSearch" type="search" placeholder="Search clause or evidence"></label>
+                            <label>Status<select id="complianceStatusFilter"><option value="">All statuses</option></select></label>
+                        </div>
+                        <p id="complianceEmpty" class="empty-state">Analyze a contract to see contractual-term checks here.</p>
+                        <div class="table-container"><table><thead><tr><th>Term</th><th>Status</th><th>Risk</th><th>Requirement</th><th>Explanation and contract evidence</th></tr></thead><tbody id="complianceTable"></tbody></table></div>
+                    </section>
+                </section>
+
+                <section id="financialPage" class="app-page" data-page-container="financial-impact" aria-labelledby="financialHeading" hidden>
+                    <div class="page-heading"><p class="eyebrow">MONETARY TERMS</p><h2 id="financialHeading">Financial Impact</h2><p class="page-lede">Evidence-linked financial terms, calculations, and uncertainty from the existing financial impact engine.</p></div>
+                    <div id="financialUnavailable" class="empty-state">Analyze a contract to see financial impact results here.</div>
+                    <div id="financialContent" hidden>
+                        <div class="metric-grid financial-metrics">
+                            <article class="metric-card"><span class="metric-label">Financial risk</span><strong id="financialRisk" class="metric-value">—</strong><small id="financialRiskReason">—</small></article>
+                            <article class="metric-card"><span class="metric-label">Contract value</span><strong id="financialContractValue" class="metric-value">—</strong><small>Only when stated and extracted</small></article>
+                            <article class="metric-card"><span class="metric-label">Calculated exposure</span><strong id="financialExposure" class="metric-value">—</strong><small id="financialExposureRatio">—</small></article>
+                            <article class="metric-card"><span class="metric-label">Terms detected</span><strong id="financialTermCount" class="metric-value">—</strong><small>From uploaded contract text</small></article>
+                        </div>
+                        <section class="surface-card"><h3>Financial terms and evidence</h3><p id="financialItemsEmpty" class="empty-state" hidden>No financial terms were returned by the analysis engine.</p><div id="financialItems" class="financial-list"></div></section>
+                        <section class="surface-card"><h3>Calculations and scenarios</h3><div id="financialCalculations" class="financial-list"></div></section>
+                        <section class="surface-card"><h3>Uncertainties and limitations</h3><div id="financialUncertainties" class="financial-list"></div></section>
+                    </div>
+                </section>
+
+                <section id="negotiationPage" class="app-page" data-page-container="negotiation-support" aria-labelledby="negotiationHeading" hidden>
+                    <div class="page-heading"><p class="eyebrow">CONTRACT DISCUSSION</p><h2 id="negotiationHeading">Negotiation Support</h2><p class="page-lede">Existing negotiation recommendations and proposed wording tied to the contract-term review.</p></div>
+                    <section class="surface-card">
+                        <p id="negotiationsEmpty" class="empty-state">Analyze a contract to see negotiation recommendations here.</p>
+                        <div id="negotiations" class="cards"></div>
+                    </section>
+                </section>
+
+                <section id="lawPage" class="app-page" data-page-container="law-analysis" aria-labelledby="lawPageHeading" hidden>
+                    <div class="page-heading"><p class="eyebrow">CONTRACT-SPECIFIC LEGAL CONTEXT</p><h2 id="lawPageHeading">Law Analysis</h2><p class="page-lede">Jurisdiction and company context drawn from the same uploaded contract. This evidence-based review is informational, not legal advice.</p></div>
+                    <section id="lawAnalysisSection" class="surface-card law-panel">
+                        <div class="law-heading">
+                            <div><p class="eyebrow">CROSS-BORDER CONTRACT CONTEXT</p><h3>Law & jurisdiction intelligence</h3><p class="description">Contract-specific signals, organized for careful review—not a legal determination.</p></div>
+                            <span id="lawAnalysisBadge" class="badge medium">Awaiting analysis</span>
+                        </div>
+                        <div id="lawLoading" class="law-state" hidden>Law Analysis is being generated from the uploaded contract.</div>
+                        <div id="lawEmpty" class="law-state">Analyze a contract to see evidence-based law findings here.</div>
+                        <div id="lawError" class="law-state law-error" role="alert" hidden></div>
+                        <div id="lawContent" hidden>
+                            <p class="law-disclaimer">Informational contract-text analysis, not legal advice. A portal link is not confirmation that a specific legal provision was checked.</p>
+                            <div class="law-subnav" role="tablist" aria-label="Law Analysis sections">
+                                <button id="lawTabOverview" type="button" role="tab" aria-selected="true" aria-controls="lawPanelOverview" data-law-tab="overview">Jurisdiction overview</button>
+                                <button type="button" role="tab" aria-selected="false" aria-controls="lawPanelCompanies" data-law-tab="companies" tabindex="-1">Company boundaries</button>
+                                <button type="button" role="tab" aria-selected="false" aria-controls="lawPanelFindings" data-law-tab="findings" tabindex="-1">Legal findings</button>
+                                <button type="button" role="tab" aria-selected="false" aria-controls="lawPanelMissing" data-law-tab="missing" tabindex="-1">Missing protections</button>
+                                <button type="button" role="tab" aria-selected="false" aria-controls="lawPanelSources" data-law-tab="sources" tabindex="-1">Official sources</button>
+                            </div>
+                            <section id="lawPanelOverview" class="law-subsection law-tab-panel" role="tabpanel" aria-labelledby="lawTabOverview" data-law-panel="overview">
+                                <div class="law-panel-heading"><div><span class="law-section-index">01 / JURISDICTION MAP</span><h3>Where this agreement connects</h3></div></div>
+                                <div class="jurisdiction-controls">
+                                    <label for="lawJurisdictionOverview">Contract-linked jurisdiction<select id="lawJurisdictionOverview"><option value="">All identified context</option></select></label>
+                                    <p id="lawJurisdictionStatus">Only jurisdictions supported by contract evidence are listed.</p>
+                                </div>
+                                <div id="lawCountrySummary" class="law-country-summary"></div>
+                                <div id="lawOverview" class="law-overview"></div>
+                            </section>
+                            <section id="lawPanelCompanies" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Company legal boundaries" data-law-panel="companies" hidden><div class="law-panel-heading"><div><span class="law-section-index">02 / THE PARTIES</span><h3>Company boundaries & obligations</h3></div></div><div id="lawCompanies" class="law-company-grid"></div></section>
+                            <section id="lawPanelFindings" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Legal findings" data-law-panel="findings" hidden>
+                                <div class="law-panel-heading"><div><span class="law-section-index">03 / CLAUSE-LEVEL REVIEW</span><h3>Legal findings</h3></div></div>
+                                <p id="lawSourceNotice" class="description"></p>
+                                <div class="law-filters">
+                                    <label>Search findings<input id="lawSearch" type="search" placeholder="Search parties, evidence or actions"></label>
+                                    <label>Company<select id="lawPartyFilter"><option value="">All companies</option></select></label>
+                                    <label>Jurisdiction<select id="lawJurisdictionFilter"><option value="">All jurisdictions</option></select></label>
+                                    <label>Topic<select id="lawTopicFilter"><option value="">All topics</option></select></label>
+                                    <label>Severity<select id="lawSeverityFilter"><option value="">All severities</option></select></label>
+                                </div>
+                                <p id="lawNoFindings" class="law-state" hidden>No findings match these filters.</p>
+                                <div id="lawFindings" class="law-finding-list"></div>
+                            </section>
+                            <section id="lawPanelMissing" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Missing protections" data-law-panel="missing" hidden><div class="law-panel-heading"><div><span class="law-section-index">04 / OPEN QUESTIONS</span><h3>Missing protections & questions</h3></div></div><p class="description">Items inferred from missing or ambiguous contract text. They are review prompts, not findings of legal non-compliance.</p><div id="lawIssues" class="law-issues"></div></section>
+                            <section id="lawPanelSources" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Official legal sources" data-law-panel="sources" hidden><div class="law-panel-heading"><div><span class="law-section-index">05 / RESEARCH STARTING POINTS</span><h3>Official legal-source portals</h3></div></div><p class="description">Country context is shown only when supported by contract evidence. Portal links are research starting points; specific provisions remain unverified unless explicitly stated otherwise.</p><div id="lawSources" class="law-source-list"></div></section>
+                        </div>
+                    </section>
+                </section>
+            </main>
+            <footer class="app-footer">Contract Intelligence <span>·</span> AI-assisted contract review</footer>
         </div>
     </div>
-
-</section>
-
-
-<section id="resultsPage" hidden>
-
-    <div class="results-header">
-
-        <div>
-            <span class="eyebrow">ANALYSIS COMPLETE</span>
-            <h2 id="fileName">Contract Analysis</h2>
-            <p id="fileInfo"></p>
-        </div>
-
-        <button id="newContract" class="secondary">
-            Analyze Another
-        </button>
-
-    </div>
-
-
-    <div class="summary">
-
-        <div class="summary-card">
-            <label>Overall Risk</label>
-            <strong id="overallRisk">â€”</strong>
-            <small id="riskModel">â€”</small>
-        </div>
-
-        <div class="summary-card">
-            <label>Risk Score</label>
-            <strong id="riskScore">â€”</strong>
-            <small>Weighted risk findings</small>
-        </div>
-
-        <div class="summary-card">
-            <label>Compliance</label>
-            <strong id="compliance">â€”</strong>
-            <small id="complianceModel">â€”</small>
-        </div>
-
-        <div class="summary-card">
-            <label>Clauses Detected</label>
-            <strong id="clauseCount">â€”</strong>
-            <small id="textLength">â€”</small>
-        </div>
-
-    </div>
-
-
-    <div class="tabs">
-        <a href="#complianceSection">Compliance</a>
-        <a href="#clauseSection">Clauses</a>
-        <a href="#explanationSection">Explainability</a>
-        <a href="#negotiationSection">Negotiation</a>
-        <a href="#rawSection">API Output</a>
-    </div>
-
-
-    <section id="complianceSection" class="panel">
-
-        <h3>01. Compliance Review</h3>
-        <p class="description">
-            Required contractual terms detected in the uploaded contract.
-        </p>
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Clause</th>
-                        <th>Status</th>
-                        <th>Risk</th>
-                        <th>Requirement</th>
-                        <th>Contract Evidence</th>
-                    </tr>
-                </thead>
-
-                <tbody id="complianceTable"></tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <section id="clauseSection" class="panel">
-
-        <h3>02. Clause Analysis</h3>
-        <p class="description">
-            TinyBERT clause classification and confidence.
-        </p>
-
-        <div id="clauses" class="cards"></div>
-
-    </section>
-
-
-    <section id="explanationSection" class="panel">
-
-        <h3>03. Explainability</h3>
-        <p class="description">
-            Explanation behind each compliance and risk finding.
-        </p>
-
-        <div id="explanations" class="cards"></div>
-
-    </section>
-
-
-    <section id="negotiationSection" class="panel">
-
-        <h3>04. Negotiation Intelligence</h3>
-        <p class="description">
-            Recommended negotiation actions and suggested wording.
-        </p>
-
-        <div id="negotiations" class="cards"></div>
-
-    </section>
-
-
-    <section id="rawSection" class="panel">
-
-        <div class="raw-header">
-            <div>
-                <h3>05. Complete API Output</h3>
-                <p class="description">
-                    Full response received from POST /api/analyze.
-                </p>
-            </div>
-
-            <button id="copyBtn" class="secondary">
-                Copy JSON
-            </button>
-        </div>
-
-        <pre id="rawOutput"></pre>
-
-    </section>
-
-</section>
-
-</main>
-
-<footer>
-Contract Intelligence Â· AI-assisted contract analysis
-</footer>
-
-<script src="app.js"></script>
-
+    <div id="toastRegion" class="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script src="app.js"></script>
 </body>
 </html>
-

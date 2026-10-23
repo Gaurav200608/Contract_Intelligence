@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101f3d">
+    <title>Sign in | Contract Intelligence</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-page">
+    <main class="login-shell">
+        <section class="login-story" aria-labelledby="brand-title">
+            <a class="login-brand" href="/login" aria-label="Contract Intelligence home">
+                <span class="brand-mark" aria-hidden="true">CI</span>
+                <span>Contract Intelligence</span>
+            </a>
+            <div class="login-story-content">
+                <p class="login-eyebrow">CLARITY FOR EVERY AGREEMENT</p>
+                <h1 id="brand-title">Analyze. Understand.<br><span>Make Better Decisions.</span></h1>
+                <p class="login-intro">
+                    Bring contract risks into focus with evidence-led insights
+                    built to support better business decisions.
+                </p>
+                <div class="login-capabilities" aria-label="Platform capabilities">
+                    <div><span class="capability-icon" aria-hidden="true">01</span><span><b>Risk analysis</b><small>Surface important terms and potential exposure</small></span></div>
+                    <div><span class="capability-icon" aria-hidden="true">02</span><span><b>Compliance review</b><small>Review key obligations with supporting evidence</small></span></div>
+                    <div><span class="capability-icon" aria-hidden="true">03</span><span><b>Financial impact</b><small>Identify amounts, deadlines and conditional scenarios</small></span></div>
+                    <div><span class="capability-icon" aria-hidden="true">04</span><span><b>Country-wise law analysis</b><small>Review jurisdiction signals and legal context</small></span></div>
+                </div>
+            </div>
+            <p class="login-footnote">Private by design. Your contract review starts after sign-in.</p>
+        </section>
+
+        <section class="login-panel" aria-labelledby="login-title">
+            <div class="login-card">
+                <div class="login-card-mark" aria-hidden="true">CI</div>
+                <p class="login-eyebrow">WELCOME BACK</p>
+                <h2 id="login-title">Sign in to your account</h2>
+                <p class="login-subtitle">Enter your account details to continue to your workspace.</p>
+
+                <div id="loginError" class="login-alert" role="alert" aria-live="polite" hidden></div>
+                <form id="loginForm" novalidate>
+                    <label for="username">Username or email</label>
+                    <input id="username" name="username" type="text" autocomplete="username"
+                           autocapitalize="none" spellcheck="false" required maxlength="128">
+
+                    <label for="password">Password</label>
+                    <div class="password-wrap">
+                        <input id="password" name="password" type="password"
+                               autocomplete="current-password" required maxlength="1024">
+                        <button id="togglePassword" class="password-toggle" type="button"
+                                aria-controls="password" aria-pressed="false">Show</button>
+                    </div>
+
+                    <div class="login-options">
+                        <label class="remember-label" for="rememberMe">
+                            <input id="rememberMe" name="remember_me" type="checkbox">
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+
+                    <button id="loginButton" class="login-submit" type="submit">
+                        <span class="login-button-label">Sign in</span>
+                        <span class="login-button-spinner" aria-hidden="true" hidden></span>
+                    </button>
+                </form>
+                <p class="login-security-note">Your password is protected with secure one-way hashing.</p>
+            </div>
+            <p class="login-mobile-brand">Contract Intelligence · Analyze. Understand. Make Better Decisions.</p>
+        </section>
+    </main>
+    <script src="/login.js" defer></script>
+</body>
+</html>
