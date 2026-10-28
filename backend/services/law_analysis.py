@@ -4,6 +4,10 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from backend.services.legal_retrieval import (
+    LegalResearchResult,
+    retrieve_official_materials,
+)
 from backend.services.legal_sources import legal_sources_for
 
 
@@ -52,6 +56,7 @@ class LawAnalysisResult(BaseModel):
     findings: List[LawFinding]
     issues_to_resolve: List[Dict[str, Any]]
     legal_sources: List[Dict[str, Any]]
+    legal_research: LegalResearchResult
     source_verification: Dict[str, Any]
     limitations: List[str]
 
@@ -68,6 +73,12 @@ COUNTRY_PATTERNS: Dict[str, List[str]] = {
         r"\bEnglish law\b",
     ],
     "Germany": [r"\bGermany\b", r"\bGerman law\b", r"\bFederal Republic of Germany\b"],
+    "Canada": [
+        r"\bCanada\b",
+        r"\bCanadian law\b",
+        r"\b(?:Ontario|Quebec|Québec|British Columbia|Alberta|Manitoba|Saskatchewan|Nova Scotia|New Brunswick|Newfoundland and Labrador|Prince Edward Island|Northwest Territories|Yukon|Nunavut)\b",
+    ],
+    "Italy": [r"\bItaly\b", r"\bItalian law\b"],
     "United States of America": [
         r"\bUnited States(?: of America)?\b",
         r"\bU\.?S\.?A?\.?\b",
@@ -93,6 +104,23 @@ COUNTRY_PATTERNS: Dict[str, List[str]] = {
     ],
     "France": [r"\bFrance\b", r"\bFrench law\b"],
 }
+LEGAL_BODY_PATTERNS = {
+    "European Union": re.compile(
+        r"\b(?:European Union|EU law|EU legislation|EU regulation)\b", re.IGNORECASE
+    ),
+    "World Trade Organization": re.compile(
+        r"\b(?:World Trade Organization|WTO agreements?|WTO rules?)\b", re.IGNORECASE
+    ),
+    "UNCITRAL": re.compile(r"\bUNCITRAL\b", re.IGNORECASE),
+    "United Nations": re.compile(
+        r"\b(?:United Nations Treaty Collection|UN treaties?|United Nations convention|CISG)\b",
+        re.IGNORECASE,
+    ),
+    "OECD": re.compile(r"\bOECD\b", re.IGNORECASE),
+    "WIPO": re.compile(r"\bWIPO\b", re.IGNORECASE),
+    "ILO": re.compile(r"\bILO\b", re.IGNORECASE),
+    "HCCH": re.compile(r"\bHCCH\b|\bHague Conference on Private International Law\b", re.IGNORECASE),
+}
 CITY_JURISDICTIONS = {
     "India": {
         "Mumbai": r"\bMumbai\b",
@@ -111,6 +139,16 @@ CITY_JURISDICTIONS = {
         "Munich": r"\bMunich\b",
         "Frankfurt": r"\bFrankfurt\b",
         "Hamburg": r"\bHamburg\b",
+    },
+    "Canada": {
+        "Ontario": r"\bToronto\b|\bOttawa\b",
+        "Quebec": r"\bMontreal\b|\bQuébec City\b|\bQuebec City\b",
+        "British Columbia": r"\bVancouver\b|\bVictoria\b",
+        "Alberta": r"\bCalgary\b|\bEdmonton\b",
+    },
+    "Italy": {
+        "Lazio": r"\bRome\b",
+        "Lombardy": r"\bMilan\b",
     },
     "United States of America": {
         "New York": r"\bNew York\b",
@@ -300,6 +338,27 @@ def _country_matches(text: str) -> List[Tuple[str, str]]:
 
 def _regional_detail(jurisdiction: str, text: str) -> Optional[str]:
     normalized = text.lower()
+    if jurisdiction == "Canada":
+        provinces = (
+            "Newfoundland and Labrador",
+            "Prince Edward Island",
+            "Northwest Territories",
+            "British Columbia",
+            "New Brunswick",
+            "Nova Scotia",
+            "Saskatchewan",
+            "Manitoba",
+            "Nunavut",
+            "Yukon",
+            "Alberta",
+            "Ontario",
+            "Quebec",
+            "Québec",
+        )
+        for province in provinces:
+            if province.lower() in normalized:
+                return f"Canada — {province}"
+        return "Canada — federal/provincial/territorial law unresolved"
     if jurisdiction == "United Kingdom":
         for region in ("England and Wales", "Scotland", "Northern Ireland"):
             if region.lower() in normalized:
@@ -359,6 +418,22 @@ def _find_jurisdictions(text: str, governing_excerpt: str = "") -> List[Dict[str
             regional = _regional_detail(jurisdiction, sentence)
             if regional:
                 entry["region"] = regional
+
+        for body, pattern in LEGAL_BODY_PATTERNS.items():
+            if not pattern.search(sentence):
+                continue
+            entry = connections.setdefault(
+                body,
+                {
+                    "jurisdiction": body,
+                    "connection_types": [],
+                    "evidence": [],
+                },
+            )
+            if "explicit_legal_body_mention" not in entry["connection_types"]:
+                entry["connection_types"].append("explicit_legal_body_mention")
+            if sentence[:500] not in entry["evidence"] and len(entry["evidence"]) < 3:
+                entry["evidence"].append(sentence[:500])
 
         location_context = bool(
             ARBITRATION_PATTERN.search(sentence)
@@ -780,6 +855,25 @@ def analyze_law_context(
                 }
             )
 
+    parties = _extract_parties(text)
+    topic_evidence = _topic_evidence(text, clauses or [])
+    legal_research = retrieve_official_materials(
+        jurisdictions,
+        topic_evidence,
+        contract_text=text,
+    )
+
+    source_states = {
+        connector["source_id"]: {
+            "last_attempt_at": connector.get("last_attempt_at"),
+            "last_successful_retrieval_at": connector.get(
+                "last_successful_retrieval_at"
+            ),
+            "retrieval_status": connector.get("retrieval_status"),
+            "last_error": connector.get("last_error"),
+        }
+        for connector in legal_research["connectors"]
+    }
     live_check = os.environ.get("LEGAL_SOURCE_LIVE_CHECK", "").strip().lower() in {
         "1",
         "true",
@@ -787,7 +881,9 @@ def analyze_law_context(
         "on",
     }
     source_records = legal_sources_for(
-        [item["jurisdiction"] for item in jurisdictions], live_check=live_check
+        [item["jurisdiction"] for item in jurisdictions],
+        live_check=live_check,
+        source_states=source_states,
     )
     source_by_jurisdiction = {
         item["jurisdiction"]: item for item in source_records
@@ -802,8 +898,6 @@ def analyze_law_context(
             .get("verification_status", "not_checked")
         )
 
-    parties = _extract_parties(text)
-    topic_evidence = _topic_evidence(text, clauses or [])
     findings = []
 
     if not governing_sentences:
@@ -1083,7 +1177,7 @@ def analyze_law_context(
         "arbitration": "Arbitration clause present" if arbitration_sentences else None,
         "source_notes": [
             "This summary is derived only from the uploaded contract text and is not legal advice.",
-            "Official-source portals are provided as research starting points; specific provisions must be checked by qualified counsel.",
+            "Retrieved official provisions are search candidates; their applicability and legal effect are not determined by this analysis.",
         ],
         "evidence": legacy_evidence,
         "overview": {
@@ -1130,18 +1224,20 @@ def analyze_law_context(
             if item["missing_protection"] or item["potential_conflict"]
         ],
         "legal_sources": source_records,
+        "legal_research": legal_research,
         "source_verification": {
             "live_portal_check_enabled": live_check,
             "notice": (
-                "Official-source portals may be linked, but no legal provision or citation is considered verified by this analysis."
+                "A retrieved text is attributed to its official source and version; no legal applicability or substantive legal conclusion is verified by this analysis."
             ),
             "verified_provisions": [],
         },
         "limitations": [
             "This rule-based module summarizes evidence found in the uploaded contract; it does not determine governing law or legal outcomes.",
             "Mandatory laws may apply despite a governing-law clause; their applicability depends on facts and qualified legal analysis.",
-            "No legal provision, section, article, or quotation is presented as verified.",
+            "A retrieved text is an official-source candidate, not verification that a legal provision applies to the contract.",
             "Party-country identification requires explicit nearby incorporation or office wording; a party's home country is not assumed to be governing law.",
+            *legal_research["limitations"],
         ],
     }
     return LawAnalysisResult.model_validate(result).model_dump()

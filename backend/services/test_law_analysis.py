@@ -5,6 +5,7 @@ from unittest.mock import patch
 from backend.services.law_analysis import analyze_law_context
 from backend.services.legal_sources import (
     JURISDICTION_SOURCES,
+    SOURCE_REGISTRY,
     _check_portal,
     legal_sources_for,
 )
@@ -24,6 +25,32 @@ CROSS_BORDER_CONTRACT = (
 
 
 class LawAnalysisTests(unittest.TestCase):
+    def test_exact_cfr_citation_lookup_receives_contract_text_locally(self):
+        contract = (
+            "This agreement is governed by U.S. law. The processor will follow "
+            "45 C.F.R. § 164.520."
+        )
+        with patch(
+            "backend.services.law_analysis.retrieve_official_materials",
+            return_value={
+                "status": "not_searched",
+                "query_disclosure": {},
+                "historical_law_status": "unknown",
+                "connectors": [],
+                "documents": [],
+                "comparisons": [],
+                "storage": {
+                    "backend": "test",
+                    "status": "available",
+                    "version_retention": "test",
+                },
+                "limitations": [],
+            },
+        ) as retrieval:
+            analyze_law_context(contract, "Service agreement")
+
+        retrieval.assert_called_once()
+        self.assertEqual(retrieval.call_args.kwargs["contract_text"], contract)
     def test_repository_sample_pdf_law_analysis_uses_its_real_clause_text(self):
         sample_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
@@ -181,19 +208,28 @@ class LawAnalysisTests(unittest.TestCase):
             )
 
     def test_supported_jurisdiction_registry_preserves_regional_distinctions(self):
-        self.assertEqual(
-            set(JURISDICTION_SOURCES),
+        self.assertTrue(
             {
-                "India",
+                "United States of America",
+                "Canada",
                 "United Kingdom",
                 "Germany",
-                "United States of America",
                 "United Arab Emirates",
                 "Israel",
                 "China",
-                "France",
-            },
+                "India",
+                "Italy",
+                "European Union",
+                "World Trade Organization",
+                "UNCITRAL",
+                "United Nations",
+            }.issubset(JURISDICTION_SOURCES)
         )
+        self.assertEqual(SOURCE_REGISTRY["us_ecfr"]["connector_status"], "operational")
+        self.assertEqual(SOURCE_REGISTRY["eu_lex"]["connector_status"], "manual_access_required")
+        self.assertEqual(SOURCE_REGISTRY["wto"]["connector_status"], "manual_access_required")
+        self.assertEqual(SOURCE_REGISTRY["uncitral"]["connector_status"], "manual_access_required")
+        self.assertEqual(SOURCE_REGISTRY["un_treaties"]["connector_status"], "manual_access_required")
         self.assertTrue(
             any("Scotland" in region for region in JURISDICTION_SOURCES["United Kingdom"]["regions"])
         )
@@ -207,11 +243,14 @@ class LawAnalysisTests(unittest.TestCase):
     def test_governing_law_and_regional_variants_are_separated(self):
         cases = [
             ("laws of India", "India", None),
+            ("laws of Ontario", "Canada", "Canada — Ontario"),
+            ("Canadian law", "Canada", "Canada — federal/provincial/territorial law unresolved"),
             ("laws of Scotland", "United Kingdom", "Scotland"),
             ("laws of England and Wales", "United Kingdom", "England and Wales"),
             ("New York law", "United States of America", "United States — New York"),
             ("laws of DIFC", "United Arab Emirates", "Dubai International Financial Centre (DIFC)"),
             ("laws of Hong Kong", "China", "Hong Kong (separate legal system)"),
+            ("laws of Italy", "Italy", None),
             ("laws of France", "France", None),
             ("laws of Germany", "Germany", None),
             ("laws of Israel", "Israel", None),
@@ -227,6 +266,44 @@ class LawAnalysisTests(unittest.TestCase):
                     self.assertEqual(
                         result["overview"]["governing_law"]["region"], region
                     )
+
+    def test_eu_member_state_and_international_bodies_are_kept_distinct(self):
+        member_state = analyze_law_context(
+            "This agreement is governed by German law. The parties also discuss EU regulation."
+        )
+        self.assertEqual(
+            member_state["overview"]["governing_law"]["jurisdiction"],
+            "Germany",
+        )
+        self.assertIn(
+            "European Union",
+            {item["jurisdiction"] for item in member_state["overview"]["potential_jurisdictions"]},
+        )
+        german_sources = next(
+            item for item in member_state["legal_sources"] if item["jurisdiction"] == "Germany"
+        )["sources"]
+        self.assertTrue(any(source["source_id"] == "eu_lex" for source in german_sources))
+
+        international = analyze_law_context(
+            "This agreement references WTO agreements, the UNCITRAL Model Law, "
+            "and the CISG."
+        )
+        jurisdictions = {
+            item["jurisdiction"]
+            for item in international["overview"]["potential_jurisdictions"]
+        }
+        self.assertEqual(
+            jurisdictions,
+            {"World Trade Organization", "UNCITRAL", "United Nations"},
+        )
+        self.assertIn(
+            "do not automatically create direct obligations between private contract parties",
+            SOURCE_REGISTRY["wto"]["coverage_limitations"],
+        )
+        self.assertIn(
+            "not domestic law unless enacted",
+            SOURCE_REGISTRY["uncitral"]["coverage_limitations"],
+        )
 
     def test_source_links_are_not_called_verified_when_portal_is_reachable(self):
         _check_portal.cache_clear()

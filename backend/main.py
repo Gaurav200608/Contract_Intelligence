@@ -1,3 +1,4 @@
+import asyncio
 import os
 import secrets
 import sys
@@ -7,7 +8,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, File, HTTPException, Request, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
@@ -43,7 +44,7 @@ from backend.services.document_parser import (
     extract_document,
 )
 from backend.services.financial_impact_engine import analyze_financial_impact
-from backend.services.law_analysis import analyze_law_context
+from backend.services.law_analysis import LawAnalysisResult, analyze_law_context
 from backend.services.negotiation_engine import generate_negotiation_suggestions
 from backend.services.risk_engine import calculate_risk, generate_explanations
 
@@ -73,6 +74,12 @@ class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=128)
     password: str = Field(min_length=1, max_length=1024)
     remember_me: bool = False
+
+
+class ContractAnalysisResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    legal_analysis: LawAnalysisResult
 
 
 def secure_cookies() -> bool:
@@ -342,7 +349,7 @@ def health():
     return {"status": "ok"}
 
 
-@app.post("/api/analyze")
+@app.post("/api/analyze", response_model=ContractAnalysisResponse)
 async def analyze_contract(
     request: Request,
     file: UploadFile = File(...),
@@ -422,7 +429,8 @@ async def analyze_contract(
         risk_label, risk_confidence = predict("risk", text)
         compliance_label, compliance_confidence = predict("compliance", text)
 
-        legal_analysis = analyze_law_context(
+        legal_analysis = await asyncio.to_thread(
+            analyze_law_context,
             text,
             contract_type.get("category", "Other/Unknown"),
             clause_predictions,

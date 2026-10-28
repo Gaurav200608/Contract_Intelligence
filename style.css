@@ -2497,6 +2497,25 @@ footer {
     margin-top: 28px;
 }
 
+.law-research-results {
+    margin-top: 24px;
+}
+
+.law-document {
+    overflow-wrap: anywhere;
+}
+
+.law-document blockquote {
+    margin: 10px 0 0;
+    padding-left: 12px;
+    border-left: 3px solid #816b41;
+    color: #344054;
+    font-size: 11px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .law-subsection h4 {
     margin: 0 0 12px;
     color: #101828;

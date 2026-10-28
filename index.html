@@ -343,7 +343,20 @@
                                 <div id="lawFindings" class="law-finding-list"></div>
                             </section>
                             <section id="lawPanelMissing" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Missing protections" data-law-panel="missing" hidden><div class="law-panel-heading"><div><span class="law-section-index">04 / OPEN QUESTIONS</span><h3>Missing protections & questions</h3></div></div><p class="description">Items inferred from missing or ambiguous contract text. They are review prompts, not findings of legal non-compliance.</p><div id="lawIssues" class="law-issues"></div></section>
-                            <section id="lawPanelSources" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Official legal sources" data-law-panel="sources" hidden><div class="law-panel-heading"><div><span class="law-section-index">05 / RESEARCH STARTING POINTS</span><h3>Official legal-source portals</h3></div></div><p class="description">Country context is shown only when supported by contract evidence. Portal links are research starting points; specific provisions remain unverified unless explicitly stated otherwise.</p><div id="lawSources" class="law-source-list"></div></section>
+                            <section id="lawPanelSources" class="law-subsection law-tab-panel" role="tabpanel" aria-label="Official legal sources" data-law-panel="sources" hidden>
+                                <div class="law-panel-heading"><div><span class="law-section-index">05 / SOURCES & PROVISIONS</span><h3>Official legal-source coverage</h3></div></div>
+                                <p class="description">Coverage is source-specific. A portal link is not a retrieved legal text, and retrieval does not determine legal applicability.</p>
+                                <div id="lawSources" class="law-source-list"></div>
+                                <section class="law-research-results" aria-labelledby="lawConnectorHeading">
+                                    <h4 id="lawConnectorHeading">Connector activity and source failures</h4>
+                                    <div id="lawConnectors" class="law-source-list"></div>
+                                </section>
+                                <section class="law-research-results" aria-labelledby="lawDocumentsHeading">
+                                    <h4 id="lawDocumentsHeading">Retrieved provisions and contract evidence</h4>
+                                    <p class="description">Retrieved text is shown verbatim from the official source response. Search relevance alone is insufficient to conclude that a rule applies or conflicts with the contract.</p>
+                                    <div id="lawDocuments" class="law-source-list"></div>
+                                </section>
+                            </section>
                         </div>
                     </section>
                 </section>

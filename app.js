@@ -644,12 +644,15 @@ function renderJurisdictionSummary() {
         );
         if (source) {
             const sourceCount = (source.sources || []).length;
+            const operationalCount = (source.sources || []).filter(item =>
+                item.connector_status === "operational"
+            ).length;
             lawText(
                 summary,
                 "p",
                 sourceCount
-                    ? `${sourceCount} official research portal${sourceCount === 1 ? "" : "s"} returned. Specific provisions are not verified.`
-                    : "No official portal was returned for this jurisdiction."
+                    ? `${sourceCount} official source record${sourceCount === 1 ? "" : "s"} listed; ${operationalCount} live connector${operationalCount === 1 ? "" : "s"}. Registry coverage is not retrieval or a legal applicability determination.`
+                    : "No official source metadata is registered for this jurisdiction."
             );
         }
     } else {
@@ -777,9 +780,21 @@ function appendOfficialLink(parent, url, label) {
 function displaySourceStatus(status) {
     const labels = {
         not_checked: "Not verified",
+        not_attempted: "Not verified · not yet retrieved",
         portal_reachable_provision_not_verified: "Portal reachable · provision not verified",
         portal_unavailable_provision_not_verified: "Portal unavailable · provision not verified",
-        verified: "Verified"
+        verified: "Verified",
+        retrieved: "Official text retrieved · applicability not verified",
+        partial_failure: "Partial retrieval · review source errors",
+        no_results: "No search results",
+        not_applicable: "Not searched",
+        not_searched_jurisdiction_not_identified: "Not searched · jurisdiction not identified",
+        not_searched_no_contract_topic_evidence: "Not searched · no contract topic evidence",
+        timeout: "Source request timed out",
+        rate_limited: "Source rate limit reached",
+        unavailable: "Source unavailable",
+        stale_source_date: "Source version may be stale",
+        retrieved_as_of_source_date_not_guaranteed_current: "Retrieved as of source date · currentness not guaranteed"
     };
     return labels[status] || status || "Not verified";
 }
@@ -810,7 +825,9 @@ function renderLawAnalysis(analysis) {
     lawFindingRecords = analysis.findings || [];
     lawAnalysisRecord = analysis;
 
-    if (!lawFindingRecords.length && !parties.length && !jurisdictions.length) {
+    const legalResearch = analysis.legal_research || {};
+    if (!lawFindingRecords.length && !parties.length && !jurisdictions.length
+        && !(legalResearch.documents || []).length) {
         emptyState.hidden = false;
     } else {
         content.hidden = false;
@@ -920,7 +937,7 @@ function renderLawAnalysis(analysis) {
     addFilterOptions("lawTopicFilter", lawFindingRecords.map(item => item.contract_topic));
     addFilterOptions("lawSeverityFilter", lawFindingRecords.map(item => item.severity));
     document.getElementById("lawSourceNotice").textContent =
-        analysis.source_verification?.notice || "No legal provision is treated as verified.";
+        analysis.source_verification?.notice || "Retrieved legal text is evidence for review only; applicability is not established.";
     renderLawFindingList();
 
     const issueContainer = document.getElementById("lawIssues");
@@ -946,15 +963,93 @@ function renderLawAnalysis(analysis) {
         (record.sources || []).forEach(source => {
             const line = document.createElement("div");
             line.className = "law-source-item";
-            appendOfficialLink(line, source.url, source.name);
-            const checked = source.checked_at ? ` Checked at: ${source.checked_at}.` : "";
-            lawText(line, "span", `Status: ${displaySourceStatus(source.verification_status)}; specific provisions not verified.${checked}`);
+            appendOfficialLink(line, source.base_url || source.url, source.organization || source.name);
+            lawText(line, "span", `Connector: ${source.connector_status || "manual_access_required"} · Retrieval: ${displaySourceStatus(source.retrieval_status || "not_attempted")}`);
+            if (source.retrieval_method) lawText(line, "p", `Method: ${source.retrieval_method}`);
+            if (source.coverage_limitations) lawText(line, "p", `Coverage: ${source.coverage_limitations}`);
+            if (source.last_successful_retrieval_at) {
+                lawText(line, "p", `Last successful retrieval: ${source.last_successful_retrieval_at}`);
+            }
+            if (source.last_error) lawText(line, "p", `Last source error: ${source.last_error}`);
+            if (source.checked_at) {
+                lawText(line, "span", `Portal checked at ${source.checked_at}; this does not verify a provision.`);
+            }
             section.appendChild(line);
         });
         sourceContainer.appendChild(section);
     });
     if (!sourceContainer.children.length) {
         lawText(sourceContainer, "p", "No official source portal was selected because the contract did not provide a supported jurisdiction connection.");
+    }
+
+    const connectorContainer = document.getElementById("lawConnectors");
+    connectorContainer.replaceChildren();
+    (legalResearch.connectors || []).forEach(connector => {
+        const card = document.createElement("article");
+        card.className = "law-source";
+        lawText(card, "h5", `${connector.organization} · ${connector.jurisdiction}`);
+        lawText(card, "p", `Connector status: ${connector.connector_status} · Retrieval: ${displaySourceStatus(connector.retrieval_status)}`);
+        if (connector.last_attempt_at) lawText(card, "p", `Last attempt: ${connector.last_attempt_at}`);
+        if (connector.last_successful_retrieval_at) {
+            lawText(card, "p", `Last successful retrieval: ${connector.last_successful_retrieval_at}`);
+        }
+        lawText(card, "p", `Persistent storage: ${connector.storage_status}`);
+        lawText(card, "p", `Coverage: ${connector.coverage_limitations}`);
+        if (connector.api_docs_url) appendOfficialLink(card, connector.api_docs_url, "Official API documentation");
+        (connector.queries || []).forEach(query => {
+            lawText(card, "p", `Search topic: ${query.contract_topic}; official-source query: ${query.query}`);
+        });
+        (connector.errors || []).forEach(error => {
+            const message = typeof error === "string"
+                ? error
+                : `${error.status || "source_error"}: ${error.message || "No details returned."}${error.retry_after ? ` Retry-After: ${error.retry_after}` : ""}`;
+            lawText(card, "p", `Source error: ${message}`);
+        });
+        connectorContainer.appendChild(card);
+    });
+    if (!connectorContainer.children.length) {
+        lawText(connectorContainer, "p", "No live legal-source connector was selected for the contract evidence.");
+    }
+
+    const documentsContainer = document.getElementById("lawDocuments");
+    documentsContainer.replaceChildren();
+    (legalResearch.comparisons || []).forEach(comparison => {
+        const card = document.createElement("article");
+        card.className = "law-source law-document";
+        lawText(card, "h5", comparison.legal_document_title);
+        lawText(card, "p", `${comparison.legal_provision_reference} · ${comparison.contract_topic} · ${comparison.support_assessment.replaceAll("_", " ")}`);
+        const sourceDocument = (legalResearch.documents || []).find(document =>
+            document.provision_reference === comparison.legal_provision_reference
+        );
+        if (sourceDocument) {
+            lawField(card, "Source and jurisdiction", `${sourceDocument.source_name} · ${sourceDocument.jurisdiction}`);
+            lawField(card, "Instrument type and authority", `${sourceDocument.document_type} · ${sourceDocument.authority_status}`);
+            lawField(card, "Effective/version dates", `Effective from: ${sourceDocument.effective_date || "not supplied"} · Version: ${sourceDocument.version_id} · Source as of: ${sourceDocument.source_as_of_date}`);
+            lawField(card, "Retrieval and verification", `Retrieved: ${sourceDocument.retrieved_at} · Last verified: ${sourceDocument.last_verified_at} · ${displaySourceStatus(sourceDocument.currency_status)} · ${sourceDocument.verification_status}`);
+            lawField(card, "Amendment/consolidation status", sourceDocument.amendment_repeal_status);
+        }
+        lawField(card, "Evidence-based relationship", comparison.explanation);
+        lawField(card, "Contract excerpt", comparison.contract_excerpt);
+        const legalText = document.createElement("details");
+        lawText(legalText, "summary", "Show retrieved legal-source text");
+        lawText(legalText, "blockquote", comparison.legal_excerpt);
+        card.appendChild(legalText);
+        lawField(card, "Facts still needed", (comparison.missing_facts || []).join("\n"));
+        appendOfficialLink(
+            card,
+            comparison.official_source_url,
+            sourceDocument && sourceDocument.source_id === "us_code"
+                ? "Open official U.S. Code title XML download"
+                : "Open exact official provision",
+        );
+        documentsContainer.appendChild(card);
+    });
+    if (!documentsContainer.children.length) {
+        lawText(
+            documentsContainer,
+            "p",
+            "No provision text was retrieved for this upload. Portal entries above are research starting points, not evidence that a specific law was checked."
+        );
     }
 
     const jurisdictionSelect = document.getElementById("lawJurisdictionOverview");

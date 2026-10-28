@@ -425,6 +425,119 @@ test("uploaded API Law Analysis renders actual evidence, filters and official so
     assert.equal(harness.elements.get("lawNoFindings").hidden, false);
 });
 
+test("retrieved source excerpts are rendered as text and retain official citation metadata", async () => {
+    const harness = createHarness();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const sourceExcerpt = "<img src=x onerror=alert(1)> synthetic source text";
+    harness.setPayload({
+        filename: "uploaded-contract.pdf",
+        clauses: [],
+        compliance: [],
+        risk: { overall_risk: "Low", risk_score: 1 },
+        explanations: [],
+        negotiation: [],
+        financial_impact: {},
+        legal_analysis: {
+            analysis_status: "complete_with_review_required",
+            contract_type: "Service agreement",
+            overview: {
+                parties: [],
+                governing_law: {},
+                dispute_resolution: {},
+                potential_jurisdictions: [{
+                    jurisdiction: "United States of America",
+                    applicability_reason: "explicit contract mention"
+                }],
+                missing_or_uncertain_information: []
+            },
+            findings: [],
+            company_analyses: [],
+            issues_to_resolve: [],
+            legal_sources: [],
+            source_verification: {},
+            legal_research: {
+                status: "retrieved",
+                connectors: [{
+                    source_id: "us_ecfr",
+                    organization: "Office of the Federal Register",
+                    jurisdiction: "United States — federal",
+                    connector_status: "operational",
+                    retrieval_status: "retrieved",
+                    queries: [{ contract_topic: "Data protection", query: "data privacy" }],
+                    errors: [],
+                    documents: [],
+                    coverage_limitations: "Federal regulations only.",
+                    storage_status: "available"
+                }],
+                documents: [{
+                    source_id: "us_ecfr",
+                    source_name: "Office of the Federal Register",
+                    jurisdiction: "United States — federal",
+                    document_type: "regulation",
+                    authority_status: "Federal regulation; applicability not assessed.",
+                    document_id: "45 CFR 164.520",
+                    provision_reference: "45 CFR 164.520",
+                    title: "Synthetic parser fixture section",
+                    canonical_url: "https://www.ecfr.gov/current/title-45/section-164.520",
+                    source_text: sourceExcerpt,
+                    contract_topic: "Data protection",
+                    contract_excerpt: "<script>contract-derived text</script>",
+                    publication_date: null,
+                    adoption_date: null,
+                    entry_into_force_date: null,
+                    effective_date: "2024-06-25",
+                    version_id: "2026-10-23",
+                    version_status: "current consolidated text",
+                    source_as_of_date: "2026-10-23",
+                    currency_status: "retrieved_as_of_source_date_not_guaranteed_current",
+                    amendment_repeal_status: "not evaluated",
+                    retrieved_at: "2026-10-28T00:00:00+00:00",
+                    last_verified_at: "2026-10-28T00:00:00+00:00",
+                    source_language: "en",
+                    authenticity: "official source API",
+                    verification_status: "official_text_retrieved; applicability_not_verified",
+                    source_endpoint: "https://www.ecfr.gov/api/versioner/v1/full/2026-10-23/title-45.xml",
+                    source_score: 10,
+                    source_match_excerpt: "Synthetic search excerpt.",
+                    provision_text_truncated: false
+                }],
+                comparisons: [{
+                    contract_topic: "Data protection",
+                    contract_excerpt: "<script>contract-derived text</script>",
+                    contract_clause_reference: null,
+                    legal_document_title: "Synthetic parser fixture section",
+                    legal_provision_reference: "45 CFR 164.520",
+                    legal_excerpt: sourceExcerpt,
+                    official_source_url: "https://www.ecfr.gov/current/title-45/section-164.520",
+                    relationship: "official_full_text_retrieved_as_a_search_candidate",
+                    support_assessment: "insufficient_evidence",
+                    explanation: "Search relevance only.",
+                    missing_facts: ["Applicability has not been determined."]
+                }],
+                query_disclosure: {
+                    contract_text_sent: false,
+                    party_names_sent: false,
+                    filename_sent: false
+                },
+                historical_law_status: "Contract effective date not established.",
+                storage: { backend: "SQLite", status: "available", version_retention: "Versioned" },
+                limitations: []
+            }
+        }
+    });
+    startAnalysis(harness, "uploaded-contract.pdf");
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    const content = harness.elements.get("lawDocuments");
+    assert.equal(content.children.length, 1);
+    assert.match(textInTree(content), /45 CFR 164\.520/);
+    assert.match(textInTree(content), /2026-10-23/);
+    assert.match(textInTree(content), /insufficient evidence/);
+    assert.match(textInTree(content), /<img src=x onerror=alert\(1\)>/);
+    assert.match(textInTree(content), /<script>contract-derived text<\/script>/);
+    assert.equal(content.children[0].innerHTML, "");
+});
+
 test("contract intake waits for explicit confirmation and rejects unsupported files", async () => {
     const harness = createHarness();
     await new Promise(resolve => setTimeout(resolve, 0));

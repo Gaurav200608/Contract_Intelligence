@@ -38,17 +38,21 @@ The existing authenticated `POST /api/analyze` route now returns an additive `le
 
 The dashboard's **Law Analysis** tab shows detected parties and roles, only explicitly supported party-country/location connections, any express governing-law clause, court/arbitration evidence, uncertainty, company-specific contract topics, evidence excerpts, and actions for legal review. Country of incorporation is not treated as the governing law. An express governing-law clause is not represented as excluding other mandatory laws.
 
-The rules-based service recognizes India, the United Kingdom (England and Wales, Scotland, Northern Ireland distinctions), Germany and relevant EU context, the United States (federal/state distinction and selected named states), the United Arab Emirates (mainland/DIFC/ADGM distinctions), Israel, China (mainland/Hong Kong/Macau distinctions), and France and relevant EU context. A jurisdiction appears only when supported by contract text; this is not an exhaustive conflicts-of-law engine. Party-country recognition requires nearby explicit incorporation/office wording.
+The rules-based service recognizes India, Canada (federal/provincial context), the United Kingdom (England and Wales, Scotland, Northern Ireland distinctions), Germany, Italy, the United States (federal/state distinction and selected named states), the United Arab Emirates (mainland/DIFC/ADGM distinctions), Israel, China (mainland/Hong Kong/Macau distinctions), France, EU law references, and explicit mentions of WTO, UNCITRAL, UN treaty, OECD, WIPO, ILO, and HCCH materials. A jurisdiction or body appears only when supported by contract text; this is not an exhaustive conflicts-of-law engine. Party-country recognition requires nearby explicit incorporation/office wording.
 
-Official research portals are maintained in `backend/services/legal_sources.py`: India Code; legislation.gov.uk; Gesetze im Internet and EUR-Lex; the U.S. Code and Congress.gov; UAE Legislation, DIFC and ADGM; Israeli government legislation; China's National People's Congress; and Légifrance and EUR-Lex. The response provides source URLs and status. **The module does not currently retrieve, identify, or verify individual statutes, article numbers, quotations, or legal applicability.** It never presents a provision citation as verified. If enabled, the optional live check only checks reachability of each relevant jurisdiction's primary portal and explicitly reports that provisions remain unverified.
+The source registry in `backend/services/legal_sources.py` contains source-specific coverage and retrieval metadata for all requested national and international bodies. **The U.S. eCFR and exact-citation U.S. Code connectors are currently operational.** When a U.S. federal context and contract topic are identified, the app queries the official eCFR JSON API; explicit CFR citations are resolved through its versioned XML API. Explicit U.S.C. citations are resolved against the title-specific USLM XML ZIP published at the House Office of the Law Revision Counsel's current release point. Retrieved text and provenance are retained in a local SQLite/FTS5 archive. The uploaded contract, party names, and filename are not sent. Generic eCFR topics and exact CFR citation identifiers may be sent to eCFR; U.S.C. citation identifiers are matched locally after downloading only the cited title's official XML archive. Search results and exact citation matches are evidence for review, not legal applicability or compliance conclusions.
 
-To opt in to the primary-portal availability check for relevant jurisdictions, set this before starting the app:
+The other listed national and international sources are explicitly marked as manual-access-only until a legitimate, tested connector is implemented. A portal URL is not described as an integration. Retrieval failures, rate limits, source version dates, stale source dates, and unavailable coverage are included in Law Analysis. State law is not covered, U.S. Code lookup requires an explicit citation, and the contract's historical effective date is not automatically established.
+
+By default, the source archive is `outputs\legal_sources.sqlite3`. Override its location before starting the backend:
 
 ```powershell
-$env:LEGAL_SOURCE_LIVE_CHECK = "true"
+$env:LEGAL_SOURCE_DATABASE_PATH = "D:\Contract_Intelligence\outputs\legal_sources.sqlite3"
 ```
 
-The check is off by default, uses a short timeout, and does not send contract text to external services. A reachable portal is not verification of a legal provision. The service has no LLM component; findings are evidence-oriented summaries and legal issues need qualified counsel review.
+Each relevant contract analysis obtains the eCFR's latest available source date and/or the U.S. Code's current official release point, searches official text or resolves an explicit CFR/U.S.C. citation, and stores each provision under a separate version key rather than overwriting prior versions. SQLite FTS5 supports full-text lookup and citation lookup. U.S. Code retrieval is exact-citation only; it does not search or ingest the entire Code. The archive is local and is not included in source control. `LEGAL_SOURCE_LIVE_CHECK=true` remains an optional portal-reachability diagnostic only; it is not required for legal-text retrieval and never verifies legal applicability.
+
+See [LEGAL_SOURCE_COVERAGE.md](LEGAL_SOURCE_COVERAGE.md) for the repository audit, implementation gap report, connector matrix, setup notes, and remaining work. The module has no LLM component. All retrieved law remains authoritative source text; contract comparisons are marked **insufficient evidence** unless a qualified reviewer establishes the relevant scope and facts. This is legal-information support, not legal advice.
 
 ## Running the project
 
@@ -144,6 +148,16 @@ Run the auth, parser/OCR, and analysis tests:
 The authentication tests use a temporary SQLite database and do not create or modify the default application account database. Run the Law Analysis service tests and browser-rendering harness with:
 
 ```powershell
-.\.venv\Scripts\python -m unittest backend.services.test_law_analysis
+.\.venv\Scripts\python -m unittest backend.services.test_law_analysis backend.services.test_legal_retrieval
 node --test test_law_analysis_ui.js
 ```
+
+The connector unit tests mock HTTP responses and explicitly use synthetic XML fixtures; they are not live-source proof. To run the separate live official-source integration tests:
+
+```powershell
+$env:RUN_LIVE_LEGAL_SOURCE_TESTS = "1"
+.\.venv\Scripts\python -m unittest backend.services.test_legal_retrieval.LegalRetrievalTests.test_live_ecfr_search_and_versioned_text_retrieval
+.\.venv\Scripts\python -m unittest backend.services.test_legal_retrieval.LegalRetrievalTests.test_live_uscode_exact_section_download
+```
+
+The live tests independently exercise eCFR search/versioned sections and U.S. Code current-release XML citation lookup. Only these two connectors currently have live retrieval. See [LEGAL_SOURCE_COVERAGE.md](LEGAL_SOURCE_COVERAGE.md) for per-source coverage and gaps.
